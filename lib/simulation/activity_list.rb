@@ -7,20 +7,12 @@ module Simulation
   	end
 
   	def add(activity)
-  		if is_valid_activity?(activity)
-  			@_list << Activity.new(@_last_id, activity)
-        @_last_id += 1
-  		else
-  			raise ArgumentError, 'Given activity is not valid (check if it responds to all required methods).'
-  		end
+			@_list << Activity.new(@_last_id, activity)
+      @_last_id += 1
   	end
 
   	def remove(activity)
-      if is_valid_activity?(activity)
-        @_list.delete_if { |el| el.id == activity.id }
-      else
-        raise ArgumentError, 'Given activity is not valid (check if it responds to all required methods).'
-      end
+      @_list.delete_if { |el| el.id == activity.id }
     end
 
     def add_all(activities)
@@ -38,17 +30,5 @@ module Simulation
     def empty?
       @_list.empty?
     end
-
-  	private
-
-  	def is_valid_activity?(activity)
-  		if activity.respond_to?(:start_time) and activity.respond_to?(:priority)
-        and activity.respond_to?(:header_conditions_fulfilled?) and activity.respond_to?(:execute)
-        
-  			return true
-  		else
-  			return false
-  		end
-  	end
   end
 end

@@ -1,5 +1,14 @@
 module Simulation  
   Activity = Struct.new(:id, :actv) do
+
+    def initialize(id, activity)
+      unless is_valid_activity?(activity) and id.is_a? Integer
+        raise ArgumentError, 'At least one of the arguments is not valid.'
+      end
+        
+      super
+    end
+
   	def start_time
       return nil if @actv.nil?
 
@@ -22,6 +31,17 @@ module Simulation
       return nil if @actv.nil?
 
       @actv.execute
+    end
+
+    private
+
+    def is_valid_activity?(activity)
+      if activity.respond_to?(:start_time) and activity.respond_to?(:priority) and activity.respond_to?(:header_conditions_fulfilled?) and activity.respond_to?(:execute)
+        
+        return true
+      else
+        return false
+      end
     end
   end
 end
