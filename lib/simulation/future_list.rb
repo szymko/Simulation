@@ -1,5 +1,5 @@
 module Simulation  
-  class WaitingList < ActivityList
+  class FutureList < ProcessList
 
     def initialize
       @_never_active_list = []

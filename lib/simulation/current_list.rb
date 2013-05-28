@@ -1,5 +1,5 @@
 module Simulation  
-  class ActiveList < ActivityList
+  class CurrentList < ActivityList
 
     def execute_all
       sort_by_priority

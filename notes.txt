@@ -1,0 +1,52 @@
+Simulation entities:
+-> processes,
+-> passive components.
+
+Process attributes:
+-> time left in state
+  time remaining before process takes some action
+  to change sequentional state of the system
+-> control state
+  formalization of "reactivation point"
+
+e.g.
+  p = Process.new
+  p.left_in_state
+  #=> 10
+  p.control_state(system_state)
+  #=> true
+
+  Each control state corresponds to a reactivation point.
+  Control state -> may bear a condition,
+  upon which process may be reactivated.
+
+If control state, given the sequentional state
+of the system is true, then process is ready to carry out its next event.
+
+If there is no process to activate at given time
+the simulation clock is advance to the nearest
+time when some process might be ready to execute its next event. 
+Execution of the next event changes the sequentional state 
+of the system.
+
+The simulation clock is not advanced as long,
+as there are any active processes.
+
+Implementation: usually two lists of processes:
+-> current event chain
+    idle processes and provesses ready for execution
+-> future event chain
+  active processes
+
+Simulation strategy:
+1) advance simulation clock to the earliest reactivation
+time of any process on the future event chain.
+2) select processes with that reactivation time
+and place them on the current event chain
+3) scan current event chain unless there is a ready process found
+4) resume execution of that process
+5) scan current event chain once more and
+if a ready process is found go to 4)
+6) advance simulation clock to the next
+earliest reactivation time and go to 2)
+
