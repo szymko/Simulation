@@ -2,23 +2,16 @@ module Simulation
   class FutureList < ProcessList
 
     def initialize
-      @_never_active_list = []
       super
-    end
+    end      
 
-    def select
-      to_be_executed = yield(@_list)
-      @_list.remove_all(to_be_executed)
-
-      to_be_executed
-    end
-
-    def get_list
-      { waiting_list: @_list, never_active_list: @_never_active_list}
-    end
-
-    def disable_never_active(picker)
-      @_never_active_list, @_list = @_list.partition { |el| yield(el) }
+    def ready_for_reactivation
+      @_list.sort! { |p1, p2| p1.reactivation_time <=> p2.reactivation_time }
+      time_now = @_list.first.reactivation_time
+      ready = @_list.select { |p| r.reactivation_time == time_now }
+      
+      remove(ready)
+      ready
     end
   end
 end

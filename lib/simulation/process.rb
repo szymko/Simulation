@@ -6,7 +6,7 @@ module Simulation
     class InvalidTimeError < StandardError; end
     class InvalidIdError < StandardError; end
 
-    attr_accessor :id, :gatherer
+    attr_accessor :id, :gatherer, :priority
     attr_reader :state, :reactivation_time
 
     STATES = Set.new(%w{Active Idle}).freeze
@@ -21,6 +21,19 @@ module Simulation
 
     def id=(value)
       value.is_a? Integer and value > 0 ? @id = id : raise InvalidIdError
+    end
+
+    def active?
+      @state == "Active"
+    end
+
+    def idle?
+      @state == "Idle"
+    end
+
+    # decides whether the process can be run concurently
+    def concurrent?
+      false
     end
   end
 end

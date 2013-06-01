@@ -28,18 +28,18 @@ module Simulation
   end
 end
 
-class A
-  extend Simulation::Asynchronous
+# class A
+#   extend Simulation::Asynchronous
 
-  def run
-    sleep 2
-    return 15
-  end
-end
+#   def run
+#     sleep 2
+#     return 15
+#   end
+# end
 
-b = A.new
-#=> #<Celluloid::ActorProxy(A:0x89678c)> 
-f = b.run
-#=> #<Celluloid::Future:0x00000001152e98>
-f.value
-#=> 15
+# b = A.new
+# #=> #<Celluloid::ActorProxy(A:0x89678c)> 
+# f = b.run
+# #=> #<Celluloid::Future:0x00000001152e98>
+# f.value
+# #=> 15
