@@ -5,7 +5,6 @@ module Simulation
   class Process < BaseProcess
 
     class InvalidStateError < StandardError; end
-    class InvalidTimeError < StandardError; end
     class InvalidIdError < StandardError; end
 
     attr_accessor :id, :priority, :system
@@ -13,14 +12,14 @@ module Simulation
 
     STATES = Set.new(%w{Active Idle}).freeze
 
-    def initialize
-      super
-    end
-
+    # Pass the information about the surrounding system
+    # to the process. Must be invoked before the simulation
+    # begins.
     def setup(system)
       @system = system
     end
 
+    # Sets reactivation time, with validation.
     def reactivation_time=(value)
       if @time >= 0
         @reactivation_time = value
@@ -29,6 +28,7 @@ module Simulation
       end
     end
 
+    # Allows only states contained in STATES.
     def state=(value)
       if STATES.member?(value)
         @state = value
@@ -53,9 +53,9 @@ module Simulation
       not active?
     end
 
-    # decides whether the process can be run concurrently
+    # Decides whether the process can be run concurrently.
     def concurrent?
-      false
+      true
     end
   end
 end

@@ -1,6 +1,8 @@
 require 'descriptive_statistics/safe'
 
-module Simulation end
+module Simulation 
+  class InvalidTimeError < StandardError; end
+end
 
 require File.join(File.dirname(__FILE__), 'simulation/base_process')
 require File.join(File.dirname(__FILE__), 'simulation/process')

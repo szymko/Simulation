@@ -1,6 +1,9 @@
 module Statistics
   module Collector
 
+    # Collects the reutrn values of each of the methods.
+    # Remembers each method call. The history of calls
+    # can be accessed by calling #{method}_invocation_stats.
     def collect_on(*methods)
 
       methods.each do |method|
@@ -18,7 +21,7 @@ module Statistics
       end
     end
 
-    # extract statistics of one element of a system and
+    # Extracts statistics of one element of a system and
     # return a BaseStatistic instance build upon them.
     # Intended to provide a handy way to illustrate changes
     # in aspects of the system.
@@ -32,6 +35,8 @@ module Statistics
       element_stats = BaseStatistic.new(element_stats)
     end
 
+    # Creates timeseries, which reflects changing values
+    # over time.
     def create_timeseries(system_stats, element)
       data = create_element_stat(system_stats, element)
       time = create_element_stat(system_stats, :time)

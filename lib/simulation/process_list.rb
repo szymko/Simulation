@@ -1,12 +1,24 @@
 module Simulation
+  # ProcessList contains all the methods
+  # common for both current and future lists.
+  # It provides also possibility to make it easier
+  # to perform concurrent execution of the processes from the list.
+  #
+  # Some of the methods are chainable, e.g.
+  # p = ProcessList.new(procs); p.active.execute_concurrently(:touch)
   class ProcessList
 
+    # @_last_id is used to keep track of the last
+    # unique id given to the process. IDs are necessary
+    # by running the processes in the background and removing them.
     def initialize(processes = [])
       @_last_id = 0
       @_list = []
       add(processes)
     end
 
+    # Add one process, or provide more
+    # processes using an Array.
     def add(process_or_processes)
       if process_or_processes.is_a? Array
         add_all(process_or_processes)
@@ -43,16 +55,28 @@ module Simulation
       ProcessList.new(idle_processes)
     end
 
+    # Sort by Process attribute. It is not beutiful and maybe it
+    # should be deleted at all.
     def sort_by(attribute)
       sorted_processes = @_list.sort { |a, b| a.send(attribute) <=> b.send(attribute) }
       ProcessList.new(sorted_processes)
     end
 
+    # fetch each process
     def each
       @_list.each { |l| yield l }
     end
 
-    def execute_concurrently(method, arguments)
+    # Send instructions to all processes on the list
+    # and wait for them to return some value.
+    # It will block the execution stream,
+    # but it is faster, since each process usees a seperate Thread.
+    #
+    # Arguments should be an array.
+    # In response there is returned an array, which members
+    # are two - element arrays containing Process#id and 
+    # method execution result. 
+    def execute_concurrently(method, arguments = [])
       response_array = []
 
       @_list.each do |p|
@@ -65,8 +89,12 @@ module Simulation
       response_array
     end
 
+    alias :each, :each_process
+
     private
 
+    # After concurrent execution find Process#ids for processes, which
+    # returned given value.
     def extract_ids(responses, value)
       positive_ids = responses.map{ |l| l[0] if l[1] == value }.compact
     end

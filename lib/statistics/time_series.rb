@@ -1,6 +1,5 @@
 module Statistics
   class TimeSeries
-    class InvalidTimeError < StandardError; end
     class MismatchedDataError < StandardError; end
 
     attr_accessor :data, :time
@@ -9,8 +8,6 @@ module Statistics
       build(args)
     end
 
-    # build from hash, where keys represent time
-    # and values data associated with it
     def build(*data)
       if data.length == 1
         build_from_single(*data)
@@ -21,6 +18,9 @@ module Statistics
       end
     end
 
+    # Does not allow time to be negative.
+    # New value cannot also be lower than
+    # previous given moment.
     def valid_time?(value, previous = -1)
       numeric = if value.is_a? Numeric and value > 0
                   true
@@ -32,6 +32,17 @@ module Statistics
       numeric and ascending
     end
 
+    # Build timeseries from multiple arrays.
+    # When more than two arrays are given,
+    # each following two are treated as the continuation
+    # of the previous data stream.
+    #
+    # e.g.
+    # ts = Statistics::TimeSeries.new([1,2], [3,4], [5,6], [-1,12])
+    # ts.time
+    # #=> [1,2,5,6]
+    # ts.data
+    # #=> [3,4,-1,12]
     def build_from_multiple(data_arys)
       @time ||= []
       @data ||= BasicStatistic.new
