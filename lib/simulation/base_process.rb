@@ -19,8 +19,10 @@ module Simulation
   # b.out_queue.pop
   # => waits for the long_executing_method to return
   class BaseProcess
+    class NoMethodGivenError < StandardError; end
 
-    attr_accessor :in_queue, :out_queue, :thr, :system_changing
+    attr_accessor :thr, :system_changing, :silenced_errors
+    attr_reader :in_queue, :out_queue
 
     # @system_changing - array of names of the methods, which
     # should change the state of the system.
@@ -30,51 +32,44 @@ module Simulation
     def initialize
       @in_queue ||= Queue.new
       @out_queue ||= Queue.new
-      @system_changing = [:run]
-    end
-
-
-    def enable_synchronization(semaphore)
-      @system_semaphore = semaphore
     end
 
     def start
       @thr ||= Thread.new do
         loop do
+          bundle = @in_queue.pop
           # create Method instance from a method name
-          meth = method(@in_queue.pop)
+          meth = method(bundle[0])
+          args = bundle[1]
 
-          # Method#arity returns the number of arguments
-          if meth.arity == 0
-            args = []
-          else
-            args = @in_queue.pop
-          end
-
-          @out_queue.push(call_from_queue(meth, args))
+          res = meth.call(*args)
+          @out_queue.push(meth.call(*args))
         end
       end
     end
 
-    def destroy
+    def join
       @thr.join unless @thr.nil?
     end
 
-    private
-
-    def change_system_state(new_state)
-      if @system_semaphore
-        @system_semaphore.synchronize { @system.update(new_state) }
-      else
-        @system.update(new_state)
-      end
+    def kill
+      @thr.kill unless @thr.nil?
     end
 
-    def call_from_queue(meth, args)
-      return_value = meth.call(*args)
-      change_system_state(return_value) if system_changing.member?(meth.name)
-      
-      return_value
+    alias :stop :kill
+
+    def send_call(method, *args)
+      @in_queue << [method, args]
+      @waiting = true
+    end
+
+    def get_response
+      if @waiting
+        @waiting = false
+        @out_queue.pop
+      else
+        raise NoMethodGivenError
+      end
     end
   end
 end

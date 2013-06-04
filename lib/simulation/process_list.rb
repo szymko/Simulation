@@ -8,11 +8,7 @@ module Simulation
   # p = ProcessList.new(procs); p.active.execute_concurrently(:touch)
   class ProcessList
 
-    # @_last_id is used to keep track of the last
-    # unique id given to the process. IDs are necessary
-    # by running the processes in the background and removing them.
     def initialize(processes = [])
-      @_last_id = 0
       @_list = []
       add(processes)
     end
@@ -41,7 +37,7 @@ module Simulation
 
     def active
       active_collection = execute_concurrently(:active?)
-      active_ids = extract_ids(active_collection, :true)
+      active_ids = extract_ids(active_collection, true)
 
       active_processes = @_list.select { |l| active_ids.member?(l.id)}
       ProcessList.new(active_processes)
@@ -49,7 +45,7 @@ module Simulation
 
     def idle
       idle_collection = execute_concurrently(:idle?)
-      idle_ids = extract_ids(idle_collection, :true)
+      idle_ids = extract_ids(idle_collection, true)
 
       idle_processes = @_list.select { |l| idle_ids.member?(l.id)}
       ProcessList.new(idle_processes)
@@ -76,20 +72,21 @@ module Simulation
     # In response there is returned an array, which members
     # are two - element arrays containing Process#id and 
     # method execution result. 
-    def execute_concurrently(method, arguments = [])
+    def execute_concurrently(method, *arguments)
       response_array = []
 
       @_list.each do |p|
-        p.in_queue << method
-        p.in_queue << arguments
+        p.start if p.thr.nil?
+
+        p.send_call(method, *arguments)
       end
 
-      @_list.each { |p| response_array << [p.id, p.out_queue.pop] }
+      @_list.each { |p| response_array << [p.id, p.get_response] }
 
       response_array
     end
 
-    alias :each, :each_process
+    alias :each_process :each
 
     private
 
@@ -108,8 +105,6 @@ module Simulation
 
     def add_one(process)
       @_list << process
-      process.id = @_last_id
-      @_last_id += 1
       self
     end
 
