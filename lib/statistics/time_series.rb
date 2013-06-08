@@ -8,11 +8,11 @@ module Statistics
       build(args)
     end
 
-    def build(*data)
+    def build(data)
       if data.length == 1
         build_from_single(*data)
       elsif data.count.even?
-        build_from_multiple(*args)
+        build_from_multiple(data)
       else
         raise MismatchedDataError
       end
@@ -21,13 +21,13 @@ module Statistics
     # Does not allow time to be negative.
     # New value cannot also be lower than
     # previous given moment.
-    def valid_time?(value, previous = -1)
+    def valid_time?(value, previous)
       numeric = if value.is_a? Numeric and value > 0
                   true
                 else
                   false
                 end
-      ascending = value > previous
+      ascending = previous.nil? ? true : value > previous
 
       numeric and ascending
     end
@@ -45,7 +45,7 @@ module Statistics
     # #=> [3,4,-1,12]
     def build_from_multiple(data_arys)
       @time ||= []
-      @data ||= BasicStatistic.new
+      @data ||= BaseStatistic.new
       data_arys.each_slice(2) do |time, data|
         raise MismatchedDataError unless time.length == data.length
 
@@ -53,7 +53,7 @@ module Statistics
           if valid_time?(t, @time.last)
             @time << t
           else
-            raise InvalidTimeError
+            raise Simulation::InvalidTimeError
           end
         end
 
@@ -63,7 +63,7 @@ module Statistics
 
     def build_from_single(data_ary)
       @time ||= []
-      @data ||= BasicStatistic.new
+      @data ||= BaseStatistic.new
       data_ary.each_with_index do |d, idx|
         @time << idx
         @data << d

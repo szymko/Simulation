@@ -17,7 +17,7 @@ module Simulation
     def initialize
       @id = select_unique_id
       @@ids << @id
-      
+
       super
     end
 

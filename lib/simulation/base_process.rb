@@ -43,7 +43,7 @@ module Simulation
           args = bundle[1]
 
           res = meth.call(*args)
-          @out_queue.push(meth.call(*args))
+          @out_queue.push(res)
         end
       end
     end

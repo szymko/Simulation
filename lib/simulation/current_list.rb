@@ -10,7 +10,7 @@ module Simulation
     # Decides, which of the processes should be moved away
     # from the current_list(checks reactivation time).
     def run_in_future(time_now)
-      for_react = @_list.select { |p| r.reactivation_time >= time_now }
+      for_react = @_list.select { |p| p.reactivation_time > time_now }
       remove(for_react)
       for_react
     end

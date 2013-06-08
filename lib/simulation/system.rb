@@ -22,7 +22,7 @@ module Simulation
     # subclass Simulation::System and overwrite Simulation::System#merge
     # Remember to call super, otherwise the time will not be checked.
     #
-    # Synchronization according to 
+    # Synchronization according to
     # http://www.ruby-doc.org/stdlib-2.0/libdoc/monitor/rdoc/MonitorMixin.html#method-i-mon_synchronize
     def update(new_state)
       self.synchronize do
@@ -40,6 +40,10 @@ module Simulation
       else
         @state.merge!(values)
       end
+    end
+
+    def time
+      @state[:time]
     end
 
     private

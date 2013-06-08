@@ -66,7 +66,7 @@ module Simulation
     # Send instructions to all processes on the list
     # and wait for them to return some value.
     # It will block the execution stream,
-    # but it is faster, since each process usees a seperate Thread.
+    # but it is faster, since each process uses a seperate Thread.
     #
     # Arguments should be an array.
     # In response there is returned an array, which members
@@ -76,14 +76,17 @@ module Simulation
       response_array = []
 
       @_list.each do |p|
-        p.start if p.thr.nil?
-
+        p.start
         p.send_call(method, *arguments)
       end
 
       @_list.each { |p| response_array << [p.id, p.get_response] }
 
       response_array
+    end
+
+    def kill
+      @_list.each { |p| p.kill }
     end
 
     alias :each_process :each
